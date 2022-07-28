@@ -1,37 +1,71 @@
-//pagina que tem o inicio do app com fotod minimizadas dos personagens
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:rick_morty/models/paginated_app.dart';
+
+import '../theme/app_colors.dart';
 
 class RickMortyHome extends StatefulWidget {
   static const routeId = '/';
+  const RickMortyHome({Key? key,}) : super(key: key) ;
 
-  const RickMortyHome({Key? key}) : super({key: key});
-  
   @override
-  State<RickMortyHome> createState() => _RickMortyHomeState();
-  
+  State<RickMortyHome> createState() => _RickMortyHome();
 }
 
-class _RickMortyHomeState extends State<RickMortyHome>{
+class _RickMortyHome extends State<RickMortyHome> {
+  Future<PaginatedApp>? characters;
 
-  var client = http.Client();
-try {
-  var response = await client.get(
-      Uri.parse('https://rickandmortyapi.com/api'),
-      );
-  var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes)) as Map;
-  var uri = Uri.parse(decodedResponse['uri'] as String);
-  print(await client.get(uri));
-} finally {
-  client.close();
-}
-  
   @override
-  Widget build(BuildContext context) {
-    
+  void initState() {
+    characters = Repository.getUpcomingCaracters();
+    super.initState();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      backgroundColor: AppColors.backgroundColor,
+      body: FutureBuilder(
+        future: character,
+        builder: (_, AsyncSnapshot<PaginatedApp> snapshot) {
+          if(snapshot.hasData) {
+            final dataResults = snapshot.data!.results;
+
+            return ListView.separated(
+              itemBuilder: (_, index) {
+                final character = dataResults[index];
+                  
+                  return Card(
+                    color: AppColors.backTitleColor,
+                    clipBehavior: Clip.antiAlias,
+                    margin: const EdgeInsets.symmetric
+                    (horizontal: 20,
+                    vertical: 7.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Image.network()
+                        ]
+                      )
+                    ),
+                  );
+                
+              },
+              separatorBuilder: (context, index) => const
+              SizedBox(height: 16),
+              itemCount: dataResults.length,
+            );
+          }
+        return Container();
+      },
+      )
+    );
+  }
 }
+

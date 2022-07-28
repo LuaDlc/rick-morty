@@ -24,9 +24,8 @@ class MyApp extends StatelessWidget {
             },
             );
             default:
+              return null;
         }
-        return null;
-
       },
       theme: ThemeData(
         textTheme: GoogleFonts.latoTextTheme (
